@@ -1,0 +1,45 @@
+{
+  "name": "bankregpulse-mcp-server",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for BankRegPulse - Real-time banking regulatory intelligence for AI assistants",
+  "author": "BankRegPulse <admin@bankregpulse.com>",
+  "license": "MIT",
+  "homepage": "https://bankregpulse.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RRGU26/bankregpulse-mcp-server.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "banking",
+    "regulatory",
+    "compliance",
+    "fintech",
+    "ai",
+    "claude"
+  ],
+  "type": "module",
+  "bin": {
+    "bankregpulse-mcp-server": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
