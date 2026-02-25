@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: bankregpulse-mcp-server
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    envVars:
+      - key: MCP_TRANSPORT
+        value: http
+      - key: PORT
+        value: 10000
+      - key: BANKREGPULSE_API_URL
+        value: https://bankregpulse-enterprise-api.onrender.com
