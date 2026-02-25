@@ -6,23 +6,30 @@
  * Model Context Protocol server for banking regulatory intelligence.
  * Provides real-time regulatory data to AI assistants like Claude.
  *
+ * Supports both stdio (default) and HTTP/SSE transports.
+ *
  * @see https://bankregpulse.com
  * @see https://modelcontextprotocol.io
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
+import http from 'http';
+import { URL } from 'url';
 
 const MCP_SERVER_NAME = 'bankregpulse';
-const MCP_SERVER_VERSION = '1.0.0';
+const MCP_SERVER_VERSION = '1.0.3';
 
-// API configuration from environment
+// Configuration from environment
 const API_BASE_URL = process.env.BANKREGPULSE_API_URL || 'https://bankregpulse-enterprise-api.onrender.com';
+const HTTP_PORT = parseInt(process.env.PORT || '3000', 10);
+const USE_HTTP = process.env.MCP_TRANSPORT === 'http';
 
 // Initialize MCP server
 const server = new Server(
@@ -236,9 +243,53 @@ async function getLinkedInPost(date?: string) {
 
 // Start server
 async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error('[BankRegPulse MCP] Server running on stdio');
+  if (USE_HTTP) {
+    // HTTP/SSE mode
+    const httpServer = http.createServer(async (req, res) => {
+      const url = new URL(req.url || '', `http://${req.headers.host}`);
+
+      // CORS headers
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+      if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+
+      // Health check endpoint
+      if (url.pathname === '/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'ok', server: MCP_SERVER_NAME, version: MCP_SERVER_VERSION }));
+        return;
+      }
+
+      // SSE endpoint
+      if (url.pathname === '/sse') {
+        const transport = new SSEServerTransport(url.pathname, res);
+        await server.connect(transport);
+        console.error('[BankRegPulse MCP] Client connected via SSE');
+        return;
+      }
+
+      // 404 for other paths
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Not found. Use /sse for MCP connection or /health for status.' }));
+    });
+
+    httpServer.listen(HTTP_PORT, () => {
+      console.error(`[BankRegPulse MCP] HTTP server running on port ${HTTP_PORT}`);
+      console.error(`[BankRegPulse MCP] SSE endpoint: http://localhost:${HTTP_PORT}/sse`);
+      console.error(`[BankRegPulse MCP] Health check: http://localhost:${HTTP_PORT}/health`);
+    });
+  } else {
+    // Stdio mode (default)
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    console.error('[BankRegPulse MCP] Server running on stdio');
+  }
 }
 
 main().catch((error) => {

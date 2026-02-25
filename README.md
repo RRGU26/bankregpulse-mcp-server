@@ -140,6 +140,53 @@ const client = new Client({
 await client.connect(transport);
 ```
 
+### HTTP/SSE Mode
+
+Run the MCP server as an HTTP endpoint instead of stdio:
+
+```bash
+# Set environment variable
+export MCP_TRANSPORT=http
+export PORT=3000  # optional, defaults to 3000
+
+# Run server
+npx bankregpulse-mcp-server
+```
+
+**Endpoints:**
+- `GET /health` - Health check
+- `GET /sse` - SSE endpoint for MCP connections
+
+**Connect via HTTP:**
+
+```typescript
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+
+const transport = new SSEClientTransport(
+  new URL('http://localhost:3000/sse')
+);
+
+const client = new Client({
+  name: 'my-client',
+  version: '1.0.0'
+}, {
+  capabilities: {}
+});
+
+await client.connect(transport);
+```
+
+**Test with curl:**
+
+```bash
+# Health check
+curl http://localhost:3000/health
+
+# SSE connection (requires MCP client)
+curl -N http://localhost:3000/sse
+```
+
 ---
 
 ## Usage Examples
