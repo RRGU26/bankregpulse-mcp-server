@@ -1,7 +1,7 @@
 {
   "name": "bankregpulse-mcp-server",
   "mcpName": "io.github.RRGU26/bankregpulse-mcp-server",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Model Context Protocol server for BankRegPulse - Real-time banking regulatory intelligence for AI assistants",
   "author": "BankRegPulse <admin@bankregpulse.com>",
   "license": "MIT",
