@@ -9,6 +9,10 @@
 
 Connect your AI assistant (Claude, ChatGPT, etc.) to live banking regulatory data from 100+ sources including OCC, FDIC, CFPB, Federal Reserve, and all 50 state banking departments.
 
+<a href="https://glama.ai/mcp/servers/@RRGU26/bank-reg-pulse">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@RRGU26/bank-reg-pulse/badge" alt="BankRegPulse MCP server" />
+</a>
+
 ## What is This?
 
 BankRegPulse MCP Server is a [Model Context Protocol](https://modelcontextprotocol.io) server that lets AI assistants query our regulatory intelligence database in real-time.
