@@ -24,13 +24,18 @@ Your AI will pull fresh data from BankRegPulse and answer with context.
 
 ## Features
 
-### 🎯 Three Core Tools
+### 🎯 Eight Tools
 
 | Tool | Description | Example Use |
 |------|-------------|-------------|
-| `get_daily_briefing` | Daily regulatory intelligence summary | "What did the OCC publish today?" |
-| `get_daily_podcast` | Audio briefing URL | "Get today's regulatory podcast" |
-| `get_linkedin_post` | Pre-formatted social content | "Draft a LinkedIn post about today's news" |
+| `get_daily_briefing` | The morning brief (lead, regulatory developments, industry signals, political, what's coming, what it means), as markdown with its canonical URL | "What's in today's banking regulatory brief?" |
+| `get_weekly_digest` | The Sunday print digest | "Summarize last week's regulatory developments" |
+| `list_briefings` | Archive index: dates, titles, URLs | "Which edition covered the OCC charter decisions?" |
+| `get_blog_posts` | Recent deep-dive analysis by Lex | "What has Lex written on the unsafe-or-unsound rule?" |
+| `get_blog_post` | Full text of one deep dive, by slug | "Give me the full OCC-FDIC rule analysis" |
+| `get_upcoming_deadlines` | Comment windows and effective dates from the deadline tracker | "What comment periods close in the next two weeks?" |
+| `get_daily_podcast` | Audio URL and feed for the daily episode | "Get today's regulatory podcast" |
+| `get_linkedin_post` | LinkedIn-ready post drafted from the brief | "Draft a LinkedIn post about today's news" |
 
 ### 📊 Data Coverage
 
