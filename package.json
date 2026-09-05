@@ -8,7 +8,7 @@
   "homepage": "https://bankregpulse.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/RRGU26/bankregpulse-mcp-server.git"
+    "url": "git+https://github.com/RRGU26/bankregpulse-mcp-server.git"
   },
   "keywords": [
     "mcp",
@@ -22,7 +22,7 @@
   ],
   "type": "module",
   "bin": {
-    "bankregpulse-mcp-server": "./dist/index.js"
+    "bankregpulse-mcp-server": "dist/index.js"
   },
   "files": [
     "dist",
