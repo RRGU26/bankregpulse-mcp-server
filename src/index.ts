@@ -24,7 +24,7 @@ import http from 'http';
 import { URL } from 'url';
 
 const MCP_SERVER_NAME = 'bankregpulse';
-const MCP_SERVER_VERSION = '1.2.0';
+const MCP_SERVER_VERSION = '1.3.0';
 
 const API_BASE_URL = (process.env.BANKREGPULSE_API_URL || 'https://bankregpulse-enterprise-api.onrender.com').replace(/\/$/, '');
 const SITE = 'https://lexregpulse.com';
@@ -85,6 +85,19 @@ const TOOLS: Tool[] = [
     name: 'get_linkedin_post',
     description: "A LinkedIn-ready post drafted from the day's sent brief, ready to copy.",
     inputSchema: { type: 'object', properties: { date: DATE_ARG } },
+  },
+  {
+    name: 'subscribe_to_daily_brief',
+    description:
+      'Subscribe an email address to the LexRegPulse Daily Brief (free; every morning at 6:45 AM ET, plus the Sunday digest). Call this only when the user has asked to subscribe and has given the address. A welcome email confirms the subscription and carries a one-click unsubscribe link.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', description: "The user's email address." },
+        first_name: { type: 'string', description: 'Optional first name for the greeting.' },
+      },
+      required: ['email'],
+    },
   },
 ];
 
@@ -172,6 +185,23 @@ async function getDailyPodcast(date?: string): Promise<ToolResult> {
   return text(`# LexRegPulse Daily — ${day}\n\nAudio: ${API_BASE_URL}/api/podcast/${p.id}/audio\nEpisode brief (text): ${briefUrl(day, 'daily')}\nPodcast RSS: ${SITE}/api/podcast/feed.xml · Weekly two-host edition: ${SITE}/api/podcast/weekly-feed.xml\n`);
 }
 
+/** Same endpoint the website's signup form posts to; source tag lets the ops report count sign-ups by channel. */
+async function subscribeToDailyBrief(emailArg: unknown, firstNameArg?: unknown): Promise<ToolResult> {
+  const email = String(emailArg || '').trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fail('A valid email address is required.');
+  const r = await fetch(`${API_BASE_URL}/api/newsletter/subscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'User-Agent': `bankregpulse-mcp-server/${MCP_SERVER_VERSION}` },
+    body: JSON.stringify({ email, firstName: firstNameArg ? String(firstNameArg).slice(0, 80) : undefined, source: 'mcp-npm' }),
+    signal: AbortSignal.timeout(20000),
+  });
+  const data: any = await r.json().catch(() => ({}));
+  if (!r.ok) return fail(data?.error || `Subscription failed (HTTP ${r.status}).`);
+  if (data?.alreadySubscribed) return text(`${email} is already subscribed to the LexRegPulse Daily Brief. The next edition arrives at 6:45 AM ET.`);
+  if (data?.reactivated) return text(`Welcome back — ${email} is subscribed again. The next LexRegPulse Daily Brief arrives at 6:45 AM ET.`);
+  return text(`Subscribed. ${email} will receive the LexRegPulse Daily Brief every morning at 6:45 AM ET and the Sunday digest; a welcome email is on its way with a one-click unsubscribe link. Archive: ${SITE}/archive`);
+}
+
 async function getLinkedInPost(date?: string): Promise<ToolResult> {
   const data = await getJson<any>(`${API_BASE_URL}/api/mcp/linkedin-post${date ? `?date=${encodeURIComponent(date)}` : ''}`);
   if (!data?.success || !data.data?.post) return text('No brief is available to draft a LinkedIn post from.');
@@ -198,6 +228,7 @@ function buildServer(): Server {
         case 'get_upcoming_deadlines': return await getUpcomingDeadlines(a.days);
         case 'get_daily_podcast': return await getDailyPodcast(a.date);
         case 'get_linkedin_post': return await getLinkedInPost(a.date);
+        case 'subscribe_to_daily_brief': return await subscribeToDailyBrief(a.email, a.first_name);
         default: return fail(`Unknown tool: ${name}`);
       }
     } catch (error: any) {

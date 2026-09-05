@@ -36,6 +36,7 @@ Your AI will pull fresh data from BankRegPulse and answer with context.
 | `get_upcoming_deadlines` | Comment windows and effective dates from the deadline tracker | "What comment periods close in the next two weeks?" |
 | `get_daily_podcast` | Audio URL and feed for the daily episode | "Get today's regulatory podcast" |
 | `get_linkedin_post` | LinkedIn-ready post drafted from the brief | "Draft a LinkedIn post about today's news" |
+| `subscribe_to_daily_brief` | Subscribe an email address to the free Daily Brief (6:45 AM ET) and Sunday digest; welcome email with one-click unsubscribe | "Subscribe me to LexRegPulse at name@bank.com" |
 
 ### 📊 Data Coverage
 
